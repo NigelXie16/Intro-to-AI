@@ -21,11 +21,11 @@ import util
 
 class Node:
     def __init__(self, state, parent=None, action=None, stepCost=0, pathCost=0):
-        self.state = state
-        self.parent = parent
-        self.action = action
-        self.stepCost = stepCost
-        self.pathCost = stepCost
+        self.state = state # the state of the node
+        self.parent = parent # the parent node
+        self.action = action # the action to reach the state
+        self.stepCost = stepCost # the cost to the next state
+        self.pathCost = pathCost # total cost of the path so far ?
 
 class SearchProblem:
     """
@@ -80,6 +80,38 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+def uninformedSearch(problem, frontier):
+    start = problem.getStartState() # get the start state
+
+    frontier = frontier # util.Stack() or util.Queue() storing the nodes to be expanded
+    explored = set() # set of states that have been explored
+
+    frontier.push(Node(start)) # add the start state to the frontier
+
+    while not frontier.isEmpty():
+        
+        # pop the next node from the frontier
+        node = frontier.pop()         
+
+        # check if the node is a goal state
+        if problem.isGoalState(node.state): 
+            # Reconstruct the path by backtracking
+            path = []
+            while node.parent is not None: # traces up to the start state
+                path.append(node.action)
+                node = node.parent
+            path.reverse() # reverse the path to get the correct order
+            return path
+
+        # Add the node to the explored set
+        explored.add(node.state)
+
+        # Add successors of the node to the frontier
+        for successor, action, stepCost in problem.getSuccessors(node.state):
+            if successor not in explored:
+                frontier.push(Node(successor, node, action, stepCost, node.pathCost + stepCost))
+    return [] 
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -94,18 +126,69 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return uninformedSearch(problem, util.Stack())
+
+    start = problem.getStartState() # get the start state
+
+    frontier = util.Stack() # LIFO stack storing the nodes to be expanded
+    explored = set() # set of states that have been explored
+
+    frontier.push(Node(start)) # add the start state to the frontier
+
+    while not frontier.isEmpty():
+        node = frontier.pop() # pop the next node from the frontier
+        if problem.isGoalState(node.state): # check if the node is a goal state
+            # Reconstruct the path by backtracking
+            path = []
+            while node.parent is not None: # traces up to the start state
+                path.append(node.action)
+                node = node.parent
+            path.reverse() # reverse the path to get the correct order
+            return path
+
+        # Add the node to the explored set
+        explored.add(node.state)
+
+        # Add successors of the node to the frontier
+        for successor, action, stepCost in problem.getSuccessors(node.state):
+            if successor not in explored:
+                frontier.push(Node(successor, node, action, stepCost, node.pathCost + stepCost))
+    return []
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return uninformedSearch(problem, util.Queue())
+
+    start = problem.getStartState() # get the start state
+
+    frontier = util.Queue() # FIFO queue storing the nodes to be expanded
+    explored = set() # set of states that have been explored
+
+    frontier.push(Node(start)) # add the start state to the frontier
+
+    while not frontier.isEmpty():
+        node = frontier.pop() # pop the next node from the frontier
+        if problem.isGoalState(node.state): # check if the node is a goal state
+            # Reconstruct the path by backtracking
+            path = []
+            while node.parent is not None: # traces up to the start state
+                path.append(node.action)
+                node = node.parent
+            path.reverse() # reverse the path to get the correct order
+            return path
+
+        # Add the node to the explored set
+        explored.add(node.state)
+
+        # Add successors of the node to the frontier
+        for successor, action, stepCost in problem.getSuccessors(node.state):
+            if successor not in explored:
+                frontier.push(Node(successor, node, action, stepCost, node.pathCost + stepCost))
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
     """

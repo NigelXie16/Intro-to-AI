@@ -182,6 +182,16 @@ class PacmanGraphics:
         layout = self.layout
         self.width = layout.width
         self.height = layout.height
+        
+        # Auto-adjust zoom for large mazes to prevent window cropping
+        max_dimension = max(self.width, self.height)
+        if max_dimension > 20:  # For large mazes, reduce zoom
+            # Calculate zoom to keep window size reasonable (max ~800px)
+            max_window_size = 800
+            required_zoom = max_window_size / (max_dimension * DEFAULT_GRID_SIZE)
+            self.zoom = min(self.zoom, max(0.1, required_zoom))  # Don't go below 0.1
+            self.gridSize = DEFAULT_GRID_SIZE * self.zoom
+        
         self.make_window(self.width, self.height)
         self.infoPane = InfoPane(layout, self.gridSize)
         self.currentState = layout
